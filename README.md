@@ -1,73 +1,155 @@
-# Welcome to your Lovable project
+# Prune Text
 
-## Project info
+Uma aplicação React moderna construída com Vite, TypeScript e shadcn/ui.
 
-**URL**: https://lovable.dev/projects/0e2b0892-0f42-4537-a2ac-37f30a76db72
+## 🚀 Tecnologias
 
-## How can I edit this code?
+Este projeto utiliza:
 
-There are several ways of editing your application.
+- **Vite** - Build tool e dev server
+- **TypeScript** - Tipagem estática
+- **React** - Biblioteca de UI
+- **shadcn/ui** - Componentes de UI
+- **Tailwind CSS** - Framework de CSS
+- **Docker** - Containerização
 
-**Use Lovable**
+## 🛠️ Desenvolvimento Local
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0e2b0892-0f42-4537-a2ac-37f30a76db72) and start prompting.
+### Opção 1: Com Node.js
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Requisitos: Node.js & npm - [instalar com nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone o repositório
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navegue para o diretório
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
+# Instale as dependências
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Inicie o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Opção 2: Com Docker (Recomendado)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+#### Produção (Padrão)
+```bash
+# Construir e executar em modo produção
+docker-compose up --build
 
-**Use GitHub Codespaces**
+# Executar em background (padrão)
+docker-compose up -d --build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Parar os serviços
+docker-compose down
+```
 
-## What technologies are used for this project?
+Acesse: http://localhost:4080
 
-This project is built with:
+#### Desenvolvimento
+```bash
+# Construir e executar em modo desenvolvimento
+docker-compose --profile dev up --build
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Executar em background
+docker-compose --profile dev up -d --build
 
-## How can I deploy this project?
+# Parar os serviços
+docker-compose --profile dev down
+```
 
-Simply open [Lovable](https://lovable.dev/projects/0e2b0892-0f42-4537-a2ac-37f30a76db72) and click on Share -> Publish.
+Acesse: http://localhost:8080
 
-## Can I connect a custom domain to my Lovable project?
+## 🐳 Docker
 
-Yes, you can!
+### Estrutura do Build
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+O projeto utiliza um Dockerfile multi-stage:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- **Builder**: Constrói a aplicação Vite
+- **Production**: Serve com Nginx otimizado para SPA
+- **Development**: Servidor de desenvolvimento com hot reload
+
+### Configurações do Nginx (Produção)
+
+- Suporte a React Router (SPA routing)
+- Compressão Gzip
+- Cache de assets estáticos
+- Headers de segurança
+- Health check endpoint: `/health`
+- Porta externa: 4080 (mapeada para porta 80 interna do container)
+
+### Comandos Úteis do Docker
+
+```bash
+# Ver logs
+docker-compose logs -f
+
+# Reconstruir apenas a imagem
+docker-compose build
+
+# Limpar volumes e containers
+docker-compose down -v --remove-orphans
+
+# Executar comandos dentro do container
+docker-compose exec app-dev sh
+
+# Verificar health check
+curl http://localhost:4080/health
+```
+
+### Troubleshooting
+
+**Rebuild completo:**
+```bash
+docker-compose down -v --remove-orphans
+docker-compose build --no-cache
+docker-compose up
+```
+
+**Problemas de permissão (Windows):**
+```bash
+docker-compose down -v
+docker system prune -f
+```
+
+## 🚀 Deploy
+
+### Lovable Platform
+
+Abra [Lovable](https://lovable.dev/projects/0e2b0892-0f42-4537-a2ac-37f30a76db72) e clique em Share -> Publish.
+
+### Docker Production
+
+Use o comando padrão para deploy em qualquer ambiente que suporte Docker:
+
+```bash
+docker-compose up -d --build
+```
+
+## 🌐 Domínio Customizado
+
+Para conectar um domínio customizado:
+
+1. Navegue para Project > Settings > Domains
+2. Clique em Connect Domain
+
+Leia mais: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## 📝 Outras Formas de Editar
+
+**Editar diretamente no GitHub:**
+- Navegue para o arquivo desejado
+- Clique no botão "Edit" (ícone de lápis)
+- Faça suas alterações e commit
+
+**GitHub Codespaces:**
+- Vá para a página principal do repositório
+- Clique no botão "Code" (verde)
+- Selecione a aba "Codespaces"
+- Clique em "New codespace"
+
+

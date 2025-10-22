@@ -1,16 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Copy, Trash2, Moon, Sun, Play } from "lucide-react";
+import { Copy, Trash2, Moon, Sun, Monitor } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+type ThemeMode = "system" | "light" | "dark";
 
 const Index = () => {
   const [textA, setTextA] = useState("");
   const [textB, setTextB] = useState("");
   const [result, setResult] = useState("");
-  const [isDark, setIsDark] = useState(false);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    const saved = localStorage.getItem("theme-mode");
+    return (saved as ThemeMode) || "system";
+  });
   const { toast } = useToast();
+  const debounceTimerRef = useRef<NodeJS.Timeout>();
 
   // Normalize text for comparison (remove accents, lowercase)
   const normalizeText = (text: string): { normalized: string; indexMap: number[] } => {
@@ -38,23 +44,75 @@ const Index = () => {
     return /[\p{L}\p{M}\p{N}]/u.test(char);
   };
 
+  // Apply system theme preference
+  useEffect(() => {
+    const applyTheme = (isDark: boolean) => {
+      if (isDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    };
+
+    if (themeMode === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      applyTheme(mediaQuery.matches);
+      
+      const handler = (e: MediaQueryListEvent) => applyTheme(e.matches);
+      mediaQuery.addEventListener("change", handler);
+      return () => mediaQuery.removeEventListener("change", handler);
+    } else {
+      applyTheme(themeMode === "dark");
+    }
+  }, [themeMode]);
+
+  // Save theme preference
+  useEffect(() => {
+    localStorage.setItem("theme-mode", themeMode);
+  }, [themeMode]);
+
+  // Auto-process with debounce
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      if (textA && textB.trim()) {
+        processRemoval(true);
+      } else if (!textB.trim()) {
+        setResult("");
+      }
+    }, 280);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [textA, textB]);
+
   // Remove all occurrences of textB from textA
-  const removeText = () => {
+  const processRemoval = (silent: boolean = false) => {
     if (!textB.trim()) {
-      toast({
-        title: "Erro",
-        description: "O trecho a remover (B) não pode estar vazio.",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Erro",
+          description: "O trecho a remover (B) não pode estar vazio.",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
     if (textB.length > 10000) {
-      toast({
-        title: "Erro",
-        description: "O trecho B é muito longo (máximo 10.000 caracteres).",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Erro",
+          description: "O trecho B é muito longo (máximo 10.000 caracteres).",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
@@ -128,10 +186,12 @@ const Index = () => {
 
     if (ranges.length === 0) {
       setResult(textA);
-      toast({
-        title: "Nenhuma ocorrência encontrada",
-        description: "O trecho B não foi encontrado em A como palavra inteira.",
-      });
+      if (!silent) {
+        toast({
+          title: "Nenhuma ocorrência encontrada",
+          description: "O trecho B não foi encontrado em A como palavra inteira.",
+        });
+      }
       return;
     }
 
@@ -154,10 +214,12 @@ const Index = () => {
     const resultText = parts.join("").normalize("NFC");
     setResult(resultText);
     
-    toast({
-      title: "Sucesso",
-      description: `${ranges.length} ocorrência(s) removida(s).`,
-    });
+    if (!silent) {
+      toast({
+        title: "Sucesso",
+        description: `${ranges.length} ocorrência(s) removida(s).`,
+      });
+    }
   };
 
   const copyResult = () => {
@@ -178,41 +240,28 @@ const Index = () => {
     });
   };
 
-  const loadTestCase = (caseNum: number) => {
-    const cases = [
-      {
-        a: "João viu a ação. A acao foi rápida.",
-        b: "ação",
-      },
-      {
-        a: "carros, carro, carrossel",
-        b: "carro",
-      },
-      {
-        a: "ANA, Ana, aná, o aná está aqui",
-        b: "aná",
-      },
-    ];
+  const cycleTheme = () => {
+    const modes: ThemeMode[] = ["system", "light", "dark"];
+    const currentIndex = modes.indexOf(themeMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setThemeMode(nextMode);
+  };
 
-    const testCase = cases[caseNum - 1];
-    setTextA(testCase.a);
-    setTextB(testCase.b);
-    setResult("");
-    toast({
-      title: `Caso de teste ${caseNum} carregado`,
-      description: "Clique em 'Remover' para ver o resultado.",
-    });
+  const getThemeIcon = () => {
+    if (themeMode === "light") return <Sun className="h-5 w-5" />;
+    if (themeMode === "dark") return <Moon className="h-5 w-5" />;
+    return <Monitor className="h-5 w-5" />;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.ctrlKey && e.key === "Enter") {
       e.preventDefault();
-      removeText();
+      processRemoval(false);
     }
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? "dark" : ""}`}>
+    <div className="min-h-screen transition-colors duration-300">
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
         <div className="container mx-auto px-4 py-8 max-w-5xl">
           {/* Header */}
@@ -228,14 +277,12 @@ const Index = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {
-                setIsDark(!isDark);
-                document.documentElement.classList.toggle("dark");
-              }}
+              onClick={cycleTheme}
               className="theme-toggle"
-              aria-label="Alternar tema"
+              aria-label={`Tema: ${themeMode}`}
+              title={`Tema atual: ${themeMode === "system" ? "Sistema" : themeMode === "light" ? "Claro" : "Escuro"}`}
             >
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              {getThemeIcon()}
             </Button>
           </header>
 
@@ -270,20 +317,19 @@ const Index = () => {
                 aria-label="Trecho a ser removido"
               />
               <p className="text-sm text-muted-foreground">
-                O trecho será removido de forma case-insensitive, ignorando acentos e apenas como palavra inteira.
+                O trecho será removido automaticamente de forma case-insensitive, ignorando acentos e apenas como palavra inteira.
               </p>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3">
-              <Button onClick={removeText} size="lg" className="btn-primary flex-1 sm:flex-none">
-                <Play className="mr-2 h-4 w-4" />
-                Remover (Ctrl+Enter)
-              </Button>
               <Button onClick={clearAll} variant="outline" size="lg" className="flex-1 sm:flex-none">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Limpar
               </Button>
+              <p className="text-sm text-muted-foreground">
+                Ctrl+Enter para reprocessar manualmente
+              </p>
             </div>
 
             {/* Result */}
@@ -313,25 +359,6 @@ const Index = () => {
                 aria-label="Texto resultado"
                 aria-readonly="true"
               />
-            </div>
-
-            {/* Test Cases */}
-            <div className="space-y-3 card-container border-t pt-6">
-              <h2 className="text-lg font-semibold">Casos de teste</h2>
-              <div className="flex flex-wrap gap-2">
-                <Button onClick={() => loadTestCase(1)} variant="secondary" size="sm">
-                  Teste 1: Acentos
-                </Button>
-                <Button onClick={() => loadTestCase(2)} variant="secondary" size="sm">
-                  Teste 2: Palavras inteiras
-                </Button>
-                <Button onClick={() => loadTestCase(3)} variant="secondary" size="sm">
-                  Teste 3: Combinado
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Carregue um caso de teste e clique em "Remover" para ver o comportamento.
-              </p>
             </div>
           </div>
 

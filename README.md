@@ -2,6 +2,8 @@
 
 Uma aplicação React moderna construída com Vite, TypeScript e shadcn/ui.
 
+**Repositório:** https://github.com/rpsouza441/prune-text
+
 ## 🚀 Tecnologias
 
 Este projeto utiliza:
@@ -21,10 +23,10 @@ Requisitos: Node.js & npm - [instalar com nvm](https://github.com/nvm-sh/nvm#ins
 
 ```sh
 # Clone o repositório
-git clone <YOUR_GIT_URL>
+git clone https://github.com/rpsouza441/prune-text.git
 
 # Navegue para o diretório
-cd <YOUR_PROJECT_NAME>
+cd prune-text
 
 # Instale as dependências
 npm i
@@ -118,26 +120,17 @@ docker system prune -f
 
 ## 🚀 Deploy
 
-### Lovable Platform
-
-Abra [Lovable](https://lovable.dev/projects/0e2b0892-0f42-4537-a2ac-37f30a76db72) e clique em Share -> Publish.
-
 ### Docker Production
 
-Use o comando padrão para deploy em qualquer ambiente que suporte Docker:
+Faça deploy usando Docker em qualquer plataforma de hospedagem que suporte containers:
 
 ```bash
 docker-compose up -d --build
 ```
 
-## 🌐 Domínio Customizado
+A aplicação estará disponível na porta 4080.
 
-Para conectar um domínio customizado:
 
-1. Navegue para Project > Settings > Domains
-2. Clique em Connect Domain
-
-Leia mais: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
 
 ## 📝 Outras Formas de Editar
 

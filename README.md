@@ -37,12 +37,11 @@ npm run dev
 
 ### Opção 2: Com Docker (Recomendado)
 
-#### Produção (Padrão)
 ```bash
-# Construir e executar em modo produção
+# Construir e executar
 docker-compose up --build
 
-# Executar em background (padrão)
+# Executar em background
 docker-compose up -d --build
 
 # Parar os serviços
@@ -50,20 +49,6 @@ docker-compose down
 ```
 
 Acesse: http://localhost:4080
-
-#### Desenvolvimento
-```bash
-# Construir e executar em modo desenvolvimento
-docker-compose --profile dev up --build
-
-# Executar em background
-docker-compose --profile dev up -d --build
-
-# Parar os serviços
-docker-compose --profile dev down
-```
-
-Acesse: http://localhost:8080
 
 ## 🐳 Docker
 
@@ -73,7 +58,6 @@ O projeto utiliza um Dockerfile multi-stage:
 
 - **Builder**: Constrói a aplicação Vite
 - **Production**: Serve com Nginx otimizado para SPA
-- **Development**: Servidor de desenvolvimento com hot reload
 
 ### Configurações do Nginx (Produção)
 
@@ -97,7 +81,7 @@ docker-compose build
 docker-compose down -v --remove-orphans
 
 # Executar comandos dentro do container
-docker-compose exec app-dev sh
+docker-compose exec app sh
 
 # Verificar health check
 curl http://localhost:4080/health
@@ -119,8 +103,6 @@ docker system prune -f
 ```
 
 ## 🚀 Deploy
-
-### Docker Production
 
 Faça deploy usando Docker em qualquer plataforma de hospedagem que suporte containers:
 

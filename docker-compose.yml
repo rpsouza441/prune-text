@@ -1,27 +1,8 @@
 services:
-  # Development service
-  app-dev:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-      target: development
-    ports:
-      - "8080:8080"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-    profiles:
-      - dev
-    restart: unless-stopped
-
-  # Production service (default)
-  app-prod:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
     ports:
       - "4080:80"
     environment:

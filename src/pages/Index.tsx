@@ -268,7 +268,7 @@ const Index = () => {
           <header className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
-                RemoveText
+                Podador de Texto
               </h1>
               <p className="text-muted-foreground mt-1">
                 Remova trechos específicos do seu texto com precisão
